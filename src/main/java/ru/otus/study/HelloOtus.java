@@ -1,3 +1,5 @@
+package ru.otus.study;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
