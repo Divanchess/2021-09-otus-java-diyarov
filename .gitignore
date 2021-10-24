@@ -2,3 +2,6 @@
 /.gradle/
 /out/
 /hw01-gradle/build/
+/buildSrc/.gradle/
+build
+out
