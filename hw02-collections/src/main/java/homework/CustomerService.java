@@ -1,15 +1,12 @@
 package homework;
 
-import java.util.Comparator;
-import java.util.NavigableMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 
 public class CustomerService {
     //todo: 3. надо реализовать методы этого класса
     //важно подобрать подходящую Map-у, посмотрите на редко используемые методы, они тут полезны
-    private CustomerComparator comparator;
+    private Comparator comparator;
     public NavigableMap<Customer, String> map;
 
     public CustomerService() {
@@ -19,37 +16,27 @@ public class CustomerService {
 
     public Map.Entry<Customer, String> getSmallest() {
         //Возможно, чтобы реализовать этот метод, потребуется посмотреть как Map.Entry сделан в jdk
-//        Map.Entry<Customer, String> smallest = map.firstEntry();
-//        for (Map.Entry<Customer, String> entry: map.entrySet()) {
-//            Map.Entry.comparingByKey();
-//        }
         return map.firstEntry();
     }
 
     public Map.Entry<Customer, String> getNext(Customer customer) {
-        return map.ceilingEntry(customer);
+        return map.higherEntry(customer);
     }
 
     public void add(Customer customer, String data) {
-        map.put(customer, data);
+        map.put(new Customer(customer.getId(), customer.getName(), customer.getScores()) {
+            @Override
+            public void setName(String name) {}
+            @Override
+            public void setScores(long scores) {}
+        }, data);
     }
 
-    class CustomerComparator implements Comparator<Customer> {
+    private class CustomerComparator implements Comparator<Customer> {
         @Override
         public int compare(Customer c1, Customer c2) {
-            if (c1.getScores() == c2.getScores()) {
-                return 0;
-            }
-            if (c1.getScores() == 0) {
-                return -1; // c1 < c2
-            }
-            if (c2.getScores() == 0) {
-                return 1; // c1 > c2
-            }
-            if (c1.getScores() > c2.getScores()) {
-                return 1;
-            }
-            return -1;
+            return Long.compare(c1.getScores(),(c2.getScores()));
         }
     }
+
 }
