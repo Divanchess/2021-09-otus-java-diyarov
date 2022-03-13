@@ -18,7 +18,12 @@ public class TestExecutor {
     }
 
     public void run() throws ClassNotFoundException {
+        printTestResults(executeTest(className));
+    }
+
+    public static TestResults executeTest(String className) throws ClassNotFoundException {
         Class<?> cls = Class.forName(className);
+        TestResults testResults = new TestResults();
 
         List<Method> beforeMethods = getBeforeMethodsAndSetAccessible(cls);
         List<Method> testMethods = getTestMethodsAndSetAccessible(cls);
@@ -44,9 +49,16 @@ public class TestExecutor {
             if (testFailed) failedTestsCounter++;
         }
 
-        System.out.println("Всего тестов: " + testMethods.size());
-        System.out.println("Пройдено неуспешно: " + failedTestsCounter);
-        System.out.println("Пройдено успешно: " + (testMethods.size() - failedTestsCounter));
+        testResults.setTestsCount(testMethods.size());
+        testResults.setFailedTestsCount(failedTestsCounter);
+        testResults.setSucceedTestsCount(testMethods.size() - failedTestsCounter);
+        return testResults;
+    }
+
+    public void printTestResults(TestResults testResults) {
+        System.out.println("Всего тестов: " + testResults.getTestsCount() );
+        System.out.println("Пройдено неуспешно: " + testResults.getFailedTestsCount());
+        System.out.println("Пройдено успешно: " + testResults.getSucceedTestsCount());
     }
 
     public static boolean runMethods(List<Method> methods, Object o) {
