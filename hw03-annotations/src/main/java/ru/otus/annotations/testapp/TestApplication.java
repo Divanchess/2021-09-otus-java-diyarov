@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TestApplication {
-    private static List<String> tests = Arrays.asList(
+    private final static List<String> tests = Arrays.asList(
             "ru.otus.annotations.testapp.DataFileSenderTest"
     );
 
