@@ -5,7 +5,7 @@ import ru.otus.aop.annotations.Log;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class TestLogging implements TestLoggingInterface{
+public class TestLogging implements TestLoggingInterface {
     @Log
     public void calculation(int param) {
         System.out.println("Method | running calculation(int)");

@@ -20,8 +20,7 @@ public class LoggingProxy {
     public static TestLoggingInterface createMyClass() {
         var logging = new TestLogging();
         InvocationHandler handler = new DemoInvocationHandler(logging);
-        return (TestLoggingInterface) java.lang.reflect.Proxy.newProxyInstance(LoggingProxy.class.getClassLoader(),
-                new Class<?>[]{TestLoggingInterface.class}, handler);
+        return (TestLoggingInterface) java.lang.reflect.Proxy.newProxyInstance(LoggingProxy.class.getClassLoader(), new Class<?>[]{TestLoggingInterface.class}, handler);
     }
 
     public static class DemoInvocationHandler implements InvocationHandler {
@@ -40,9 +39,7 @@ public class LoggingProxy {
 
         @Override
         public String toString() {
-            return "DemoInvocationHandler{" +
-                    "myClass=" + myClass +
-                    '}';
+            return "DemoInvocationHandler{" + "myClass=" + myClass + '}';
         }
     }
 
@@ -66,27 +63,19 @@ public class LoggingProxy {
         }
         return isMethodWithAnnotationPresent;
     }
-    
+
     private static Class<?> returnPrimitiveClassIfExists(Class<?> cls) {
-        if (cls == Character.class)
-            return char.class;
-        if (cls == Integer.class)
-            return int.class;
-        if (cls == Boolean.class)
-            return boolean.class;
-        if (cls == Byte.class)
-            return byte.class;
-        if (cls == Double.class)
-            return double.class;
-        if (cls == Float.class)
-            return float.class;
-        if (cls == Long.class)
-            return long.class;
-        if (cls == Short.class)
-            return short.class;
+        if (cls == Character.class) return char.class;
+        if (cls == Integer.class) return int.class;
+        if (cls == Boolean.class) return boolean.class;
+        if (cls == Byte.class) return byte.class;
+        if (cls == Double.class) return double.class;
+        if (cls == Float.class) return float.class;
+        if (cls == Long.class) return long.class;
+        if (cls == Short.class) return short.class;
         return cls;
     }
-    
+
 }
 
 
