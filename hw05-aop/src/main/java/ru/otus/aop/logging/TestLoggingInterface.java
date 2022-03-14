@@ -3,9 +3,6 @@ package ru.otus.aop.logging;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Interface methods support either all primitive arguments or object arguments
- */
 public interface TestLoggingInterface {
     void calculation(int param);
 
