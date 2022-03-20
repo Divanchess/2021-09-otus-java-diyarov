@@ -32,7 +32,7 @@ public class Atm {
 
     public boolean withdraw(int withdrawAmount) {
         System.out.println("Withdraw amount: " + withdrawAmount);
-        if (displayBalance() < withdrawAmount) {
+        if (getBalance() < withdrawAmount) {
             System.out.println("Not enough money in ATM. Please follow to another ATM nearby. Check here");
             return false;
         }
@@ -59,7 +59,7 @@ public class Atm {
         return true;
     }
 
-    public int displayBalance() {
+    public int getBalance() {
         return this.balance;
     }
 
