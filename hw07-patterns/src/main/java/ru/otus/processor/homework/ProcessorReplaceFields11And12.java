@@ -6,6 +6,12 @@ import ru.otus.processor.Processor;
 public class ProcessorReplaceFields11And12 implements Processor {
     @Override
     public Message process(Message message) {
-        return null;
+        String field11 = message.getField11();
+        String field12 = message.getField12();
+        Message.Builder builder = message.toBuilder();
+        return builder
+                .field11(field12)
+                .field12(field11)
+                .build();
     }
 }
