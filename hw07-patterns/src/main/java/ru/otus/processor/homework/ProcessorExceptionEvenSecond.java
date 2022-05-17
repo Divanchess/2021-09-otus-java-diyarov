@@ -9,6 +9,10 @@ import java.util.concurrent.TimeUnit;
 public class ProcessorExceptionEvenSecond implements Processor {
     private final DateTimeProvider dateTimeProvider;
 
+    public ProcessorExceptionEvenSecond() {
+        this.dateTimeProvider = new DateTimeProvider();
+    }
+
     public ProcessorExceptionEvenSecond(DateTimeProvider dateTimeProvider) {
         this.dateTimeProvider = dateTimeProvider;
     }
@@ -17,7 +21,6 @@ public class ProcessorExceptionEvenSecond implements Processor {
     public Message process(Message message) {
         var currentTime = dateTimeProvider.getCreatedAt();
         if (currentTime.getSecond() % 2 == 0) {
-            System.out.println("EXCEPTION!");
             throw new UnsupportedOperationException();
         }
         return message;

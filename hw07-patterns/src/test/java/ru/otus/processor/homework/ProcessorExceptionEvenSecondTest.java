@@ -1,6 +1,7 @@
 package ru.otus.processor.homework;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,6 +19,7 @@ class ProcessorExceptionEvenSecondTest {
     }
 
     @Test
+    @DisplayName("Тест выбрасывать исключение при четной секунде")
     void processExceptionEvenSecondTest() {
         var provider = mock(ProcessorExceptionEvenSecond.DateTimeProvider.class);
         when(provider.getCreatedAt()).thenReturn(LocalDateTime.of(2022, 05, 12, 9, 46, 56));
@@ -26,6 +28,7 @@ class ProcessorExceptionEvenSecondTest {
     }
 
     @Test
+    @DisplayName("Тест не выбрасывать исключение при нечетной секунде")
     void processNoExceptionOddSecondTest() {
         var provider = mock(ProcessorExceptionEvenSecond.DateTimeProvider.class);
         when(provider.getCreatedAt()).thenReturn(LocalDateTime.of(2022, 05, 12, 9, 46, 57));

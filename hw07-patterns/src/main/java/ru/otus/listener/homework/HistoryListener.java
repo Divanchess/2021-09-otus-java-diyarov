@@ -3,24 +3,29 @@ package ru.otus.listener.homework;
 import ru.otus.listener.Listener;
 import ru.otus.model.Message;
 
-import java.time.LocalDateTime;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.Optional;
+import java.util.*;
 
 public class HistoryListener implements Listener, HistoryReader {
-    private final Deque<Memento> stack = new ArrayDeque<>();
+    private final HashMap<Long, Deque<Memento>> hash_stack = new HashMap<>();
 
     @Override
     public void onUpdated(Message msg) {
-        stack.push(new Memento(new State(msg)));
+        State state = new State(msg);
+        long id = msg.getId();
+        if (!hash_stack.containsKey(id)) {
+            hash_stack.put(id, new ArrayDeque<>( List.of(new Memento(state)) ));
+        } else {
+            hash_stack.get(id).push(new Memento(state));
+        }
+        System.out.println(hash_stack);
     }
 
     @Override
     public Optional<Message> findMessageById(long id) {
-//        return stack.contains(new Message(id));
-        throw new UnsupportedOperationException();
+        if (hash_stack.containsKey(id) ) {
+            return Optional.ofNullable(hash_stack.get(id).getLast().state().getMessage());
+        }
+        return Optional.empty();
     }
 
     static class State {
@@ -41,7 +46,7 @@ public class HistoryListener implements Listener, HistoryReader {
         @Override
         public String toString() {
             return "State{" +
-                    "message=" + (message == null ? null : message.toBuilder().build()) +
+                    "message=" + (message == null ? null : message) +
                     '}';
         }
     }
