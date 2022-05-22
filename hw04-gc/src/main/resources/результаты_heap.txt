@@ -1,0 +1,113 @@
+---------------------------------------
+Параметры тестовой среды:
+Intel Core i5 11400H 2700GHz
+8Gb, частота 3200MHz
+OS Windows 10Pro 64bit
+---------------------------------------
+
+1) Оптимальный экспериментальный размер heap для дефолтной реализации CalcDemo при G1GC:
+1000mb init 2000mb max
+
+spend msec:9178, sec:9
+spend msec:9065, sec:9
+spend msec:9056, sec:9
+spend msec:8303, sec:8
+
+(Подробности тестовых прогонов ниже в табл.1)
+
+Запуск с параметрами: -Xms1000m -Xmx2000m -XX:+UseG1GC
+---------------------------------------
+
+2) Минимальный экспериментальный размер heap для модифицированной реализации CalcDemo при G1GC:
+-Xms1025k -Xmx2049k -XX:+UseG1GC
+
+spend msec:3547, sec:3
+
+Варианты -XX:G1HeapRegionSize=  128, 256, 512, 1k, 2k прироста в скорости не дают
+
+---------------------------------------
+Таблица 1
+---------------------------------------
+Тестовые прогоны:
+200mb init 200mb max - не запускается, не хватает heap
+
+256mb init 256mb max - не всегда запускается, не хватает heap
+
+300mb init 300mb max
+spend msec:12853, sec:12
+
+300mb init 1200mb max
+spend msec:10396, sec:10
+
+300mb init 1200mb max
+spend msec:10134, sec:10
+
+700mb init 700mb max
+spend msec:10750, sec:10
+
+700mb init 2000mb max
+spend msec:10179, sec:10
+
+700mb init 3000mb max
+spend msec:10030, sec:10
+
+1000mb init 1000mb max
+spend msec:9989, sec:9
+
+1000mb init 1500mb max
+spend msec:9858, sec:9
+
+1000mb init 1800mb max
+spend msec:9461, sec:9
+
+1000mb init 2000mb max
+spend msec:9178, sec:9
+spend msec:9065, sec:9
+spend msec:9056, sec:9
+spend msec:8303, sec:8
+
+1000mb init 2500mb max
+spend msec:9827, sec:9
+
+1048 2560
+spend msec:9793, sec:9
+
+1300mb init 2500mb max
+spend msec:9172, sec:9
+
+1000mb init 2500mb max
+spend msec:9799, sec:9
+spend msec:9810, sec:9
+
+1024 init 1024 max
+spend msec:10329, sec:10
+
+1024 init 1500 max
+spend msec:9889, sec:9
+
+1024 init 2048 max
+spend msec:9180, sec:9
+
+1028 init 4096 max
+spend msec:11449, sec:11
+
+2 GB heap
+spend msec:9738, sec:9
+
+2048 init & max
+spend msec:9869, sec:9
+2048 init & max
+spend msec:10157, sec:10
+
+2048 init 4096 max
+spend msec:10468, sec:10
+
+2500 init 2500 max
+spend msec:9530, sec:9
+
+2500 init 3000 max
+spend msec:9600, sec:9
+
+4000 init 4000 max
+spend msec:19350, sec:19
+
