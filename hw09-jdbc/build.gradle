@@ -10,6 +10,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     implementation 'ch.qos.logback:logback-classic'
     implementation 'org.flywaydb:flyway-core'
+    implementation 'com.zaxxer:HikariCP'
     implementation 'org.postgresql:postgresql'
 }
 
