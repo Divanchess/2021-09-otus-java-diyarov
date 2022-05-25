@@ -29,11 +29,16 @@ public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
     public String getInsertSql() {
         List<Field> fields = entityClassMetaData.getAllFields();
         String values = String.join(",", fields.stream().map(f -> f.getName()).collect(Collectors.toList()));
-        return String.format("insert into %s (%s) values (?)", className, values);
+        return String.format("insert into %s (%s) values (", className, values);
     }
 
     @Override
     public String getUpdateSql() {
         return String.format("update %s set ? = ? where ? = ?", className);
+    }
+
+    @Override
+    public EntityClassMetaData getEntityClassMetaData() {
+        return entityClassMetaData;
     }
 }

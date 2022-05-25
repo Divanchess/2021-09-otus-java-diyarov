@@ -8,10 +8,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class EntityClassMetaDataImpl implements EntityClassMetaData {
-    private Class entityClass;
+public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
+    private final Class<T> entityClass;
 
-    public EntityClassMetaDataImpl(Class entityClass) {
+    public EntityClassMetaDataImpl(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 
@@ -21,7 +21,7 @@ public class EntityClassMetaDataImpl implements EntityClassMetaData {
     }
 
     @Override
-    public Constructor getConstructor() {
+    public Constructor<T> getConstructor() {
         try {
             return entityClass.getDeclaredConstructor();
         } catch (Exception e) {

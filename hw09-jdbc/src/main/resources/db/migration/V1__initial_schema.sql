@@ -5,7 +5,7 @@ create table test
 );
 create table client
 (
-    id   bigserial not null primary key,
+    id SERIAL primary key,
     name varchar(50)
 );
 
