@@ -33,30 +33,39 @@ public class HomeWork {
         EntitySQLMetaData entitySQLMetaDataClient = new EntitySQLMetaDataImpl(entityClassMetaDataClient);
         var dataTemplateClient = new DataTemplateJdbc<Client>(dbExecutor, entitySQLMetaDataClient); //реализация DataTemplate, универсальная
 
-// Код дальше должен остаться
+/// Код дальше должен остаться
         var dbServiceClient = new DbServiceClientImpl(transactionRunner, dataTemplateClient);
         dbServiceClient.saveClient(new Client("dbServiceFirst"));
 
-//        dbServiceClient.getClient(1L);
-//
-//        var clientSecond = dbServiceClient.saveClient(new Client("dbServiceSecond"));
-//        var clientSecondSelected = dbServiceClient.getClient(clientSecond.getId())
-//                .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientSecond.getId()));
-//        log.info("clientSecondSelected:{}", clientSecondSelected);
-//
-//// Сделайте тоже самое с классом Manager (для него надо сделать свою таблицу)
-//
-//        EntityClassMetaData entityClassMetaDataManager = new EntityClassMetaDataImpl(Manager.class);
-//        EntitySQLMetaData entitySQLMetaDataManager = new EntitySQLMetaDataImpl(entityClassMetaDataManager);
-//        var dataTemplateManager = new DataTemplateJdbc<Manager>(dbExecutor, entitySQLMetaDataManager);
-//
-//        var dbServiceManager = new DbServiceManagerImpl(transactionRunner, dataTemplateManager);
-//        dbServiceManager.saveManager(new Manager("ManagerFirst"));
-//
-//        var managerSecond = dbServiceManager.saveManager(new Manager("ManagerSecond"));
-//        var managerSecondSelected = dbServiceManager.getManager(managerSecond.getNo())
-//                .orElseThrow(() -> new RuntimeException("Manager not found, id:" + managerSecond.getNo()));
-//        log.info("managerSecondSelected:{}", managerSecondSelected);
+        var clientSecond = dbServiceClient.saveClient(new Client("dbServiceSecond"));
+        var clientSecondSelected = dbServiceClient.getClient(clientSecond.getId())
+                .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientSecond.getId()));
+        log.info("clientSecondSelected:{}", clientSecondSelected);
+
+// Update и findAll Client
+        dbServiceClient.findAll();
+        clientSecondSelected.setName("New_NAME");
+        dbServiceClient.saveClient(clientSecondSelected);
+        dbServiceClient.findAll();
+
+// Сделайте тоже самое с классом Manager (для него надо сделать свою таблицу)
+        EntityClassMetaData entityClassMetaDataManager = new EntityClassMetaDataImpl(Manager.class);
+        EntitySQLMetaData entitySQLMetaDataManager = new EntitySQLMetaDataImpl(entityClassMetaDataManager);
+        var dataTemplateManager = new DataTemplateJdbc<Manager>(dbExecutor, entitySQLMetaDataManager);
+
+        var dbServiceManager = new DbServiceManagerImpl(transactionRunner, dataTemplateManager);
+        dbServiceManager.saveManager(new Manager("ManagerFirst"));
+
+        var managerSecond = dbServiceManager.saveManager(new Manager("ManagerSecond"));
+        var managerSecondSelected = dbServiceManager.getManager(managerSecond.getNo())
+                .orElseThrow(() -> new RuntimeException("Manager not found, id:" + managerSecond.getNo()));
+        log.info("managerSecondSelected:{}", managerSecondSelected);
+
+// Update и findAll Manager
+        dbServiceManager.findAll();
+        managerSecondSelected.setParam1("New_PARAM1");
+        dbServiceManager.saveManager(managerSecondSelected);
+        dbServiceManager.findAll();
     }
 
     private static void flywayMigrations(DataSource dataSource) {

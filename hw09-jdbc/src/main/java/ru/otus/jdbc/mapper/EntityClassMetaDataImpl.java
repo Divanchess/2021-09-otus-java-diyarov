@@ -4,8 +4,7 @@ import ru.otus.crm.annotations.Id;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
@@ -22,12 +21,11 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
 
     @Override
     public Constructor<T> getConstructor() {
-        try {
-            return entityClass.getDeclaredConstructor();
-        } catch (Exception e) {
-            System.err.println(e);
+        Map<Constructor<T>, Integer> constructors = new HashMap();
+        for (Constructor c : entityClass.getDeclaredConstructors()) {
+            constructors.put(c, c.getParameterCount());
         }
-        return null;
+        return Collections.max(constructors.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
     }
 
     @Override

@@ -3,9 +3,7 @@ package ru.otus.jdbc.mapper;
 import ru.otus.core.repository.DataTemplate;
 import ru.otus.core.repository.DataTemplateException;
 import ru.otus.core.repository.executor.DbExecutor;
-import ru.otus.crm.model.*;
 
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -19,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Сохратяет объект в базу, читает объект из базы
+ * Сохраняет объект в базу, читает объект из базы
  */
 public class DataTemplateJdbc<T> implements DataTemplate<T> {
 
@@ -35,54 +33,78 @@ public class DataTemplateJdbc<T> implements DataTemplate<T> {
 
     @Override
     public Optional<T> findById(Connection connection, long id) {
-        return dbExecutor.executeSelect(connection, entitySQLMetaData.getSelectByIdSql(), List.of(id), rs -> {
-            try {
-                if (rs.next()) {
-                    Constructor<T> constructor = entityClassMetaData.getConstructor();
-                    List<Object> params = new ArrayList<>();
-                    List<Field> fields = entityClassMetaData.getAllFields();
-                    for (Field f : fields) {
-                        params.add(rs.getObject(f.getName()));
-                    }
-                    try {
-                        var object = constructor.newInstance(params);
-                        return object;
-                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                        System.err.println(e);
-                    }
-                }
-                return null;
-            } catch (SQLException e) {
-                throw new DataTemplateException(e);
-            }
-        });
+        return dbExecutor.executeSelect(connection, entitySQLMetaData.getSelectByIdSql(), List.of(id), rs ->
+                generateObjectsFromResultSet(rs).get(0));
     }
 
     @Override
     public List<T> findAll(Connection connection) {
-        throw new UnsupportedOperationException();
+        return dbExecutor.executeSelect(connection, entitySQLMetaData.getSelectAllSql(), Collections.emptyList(), rs ->
+                generateObjectsFromResultSet(rs)).orElseThrow(() -> new RuntimeException("Unexpected error"));
     }
 
     @Override
     public long insert(Connection connection, T object) {
         List<Object> columnValues = new ArrayList<>();
         String insertSql = entitySQLMetaData.getInsertSql();
-        try {
-            for(PropertyDescriptor propertyDescriptor :
-                Introspector.getBeanInfo(object.getClass(), Object.class).getPropertyDescriptors()){
-                System.out.println(propertyDescriptor.getReadMethod());
-                columnValues.add(propertyDescriptor.getReadMethod().invoke(object));
+        List<Field> fields = entityClassMetaData.getIdField() != null
+                ? entityClassMetaData.getFieldsWithoutId()
+                : entityClassMetaData.getAllFields();
+        for (Field f : fields) {
+            try {
+                columnValues.add(new PropertyDescriptor(f.getName(), object.getClass()).getReadMethod().invoke(object));
+            } catch (Exception e) {
+                throw new DataTemplateException(e);
             }
-            System.out.println(columnValues);
-            return dbExecutor.executeStatement(connection, insertSql,
-                    columnValues);
-        } catch (Exception e) {
-            throw new DataTemplateException(e);
         }
+        return dbExecutor.executeStatement(connection, insertSql, columnValues);
     }
 
     @Override
-    public void update(Connection connection, T client) {
-        throw new UnsupportedOperationException();
+    public void update(Connection connection, T object) {
+        List<Object> columnValues = new ArrayList<>();
+        String updateSql = entitySQLMetaData.getUpdateSql();
+        List<Field> fields = entityClassMetaData.getIdField() != null
+                ? entityClassMetaData.getFieldsWithoutId()
+                : entityClassMetaData.getAllFields();
+        Field idField = entityClassMetaData.getIdField() != null
+                ? entityClassMetaData.getIdField()
+                : fields.get(0);
+        for (Field f : fields) {
+            try {
+                columnValues.add(new PropertyDescriptor(f.getName(), object.getClass()).getReadMethod().invoke(object));
+            } catch (Exception e) {
+                throw new DataTemplateException(e);
+            }
+        }
+        try {
+            columnValues.add(new PropertyDescriptor(idField.getName(), object.getClass()).getReadMethod().invoke(object));
+        } catch (Exception e) {
+            throw new DataTemplateException(e);
+        }
+        dbExecutor.executeStatement(connection, updateSql, columnValues);
+    }
+
+    private List<T> generateObjectsFromResultSet(ResultSet rs) {
+        List<T> objects = new ArrayList<T>();
+        try {
+            while (rs.next()) {
+                Constructor<T> constructor = entityClassMetaData.getConstructor();
+                List<Field> fields = entityClassMetaData.getAllFields();
+                List<Object> newObjectParams = new ArrayList<>();
+                for (Field f : fields) {
+                    newObjectParams.add(rs.getObject(f.getName(), f.getType()));
+                }
+                try {
+                    var object = constructor.newInstance(newObjectParams.toArray());
+                    objects.add(object);
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    System.err.println(e);
+                }
+            }
+            return objects;
+        } catch (SQLException e) {
+            throw new DataTemplateException(e);
+        }
     }
 }
