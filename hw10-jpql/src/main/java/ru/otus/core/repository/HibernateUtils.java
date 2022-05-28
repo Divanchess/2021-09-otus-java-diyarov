@@ -1,4 +1,4 @@
-package otus.core.repository;
+package ru.otus.core.repository;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
