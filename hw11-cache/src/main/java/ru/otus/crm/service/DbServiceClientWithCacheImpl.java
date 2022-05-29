@@ -2,6 +2,8 @@ package ru.otus.crm.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.core.cachehw.HwCache;
+import ru.otus.core.cachehw.MyCache;
 import ru.otus.core.repository.DataTemplate;
 import ru.otus.core.sessionmanager.TransactionManager;
 import ru.otus.crm.model.Client;
@@ -9,13 +11,15 @@ import ru.otus.crm.model.Client;
 import java.util.List;
 import java.util.Optional;
 
-public class DbServiceClientCacheImpl implements DBServiceClient {
+public class DbServiceClientWithCacheImpl implements DBServiceClient {
     private static final Logger log = LoggerFactory.getLogger(DbServiceClientImpl.class);
 
     private final DataTemplate<Client> clientDataTemplate;
     private final TransactionManager transactionManager;
 
-    public DbServiceClientCacheImpl(TransactionManager transactionManager, DataTemplate<Client> clientDataTemplate) {
+    private HwCache<String, Client> cache = new MyCache<>();
+
+    public DbServiceClientWithCacheImpl(TransactionManager transactionManager, DataTemplate<Client> clientDataTemplate) {
         this.transactionManager = transactionManager;
         this.clientDataTemplate = clientDataTemplate;
     }
@@ -27,9 +31,11 @@ public class DbServiceClientCacheImpl implements DBServiceClient {
             if (client.getId() == null) {
                 clientDataTemplate.insert(session, clientCloned);
                 log.info("created client: {}", clientCloned);
+//                cache.put(clientCloned.getId().toString(), clientCloned);
                 return clientCloned;
             }
             clientDataTemplate.update(session, clientCloned);
+//            cache.put(clientCloned.getId().toString(), clientCloned);
             log.info("updated client: {}", clientCloned);
             return clientCloned;
         });
@@ -37,6 +43,9 @@ public class DbServiceClientCacheImpl implements DBServiceClient {
 
     @Override
     public Optional<Client> getClient(long id) {
+        if (cache.get(String.valueOf(id)) != null) {
+            return Optional.ofNullable(cache.get(String.valueOf(id)));
+        }
         return transactionManager.doInReadOnlyTransaction(session -> {
             var clientOptional = clientDataTemplate.findById(session, id);
             log.info("client: {}", clientOptional);

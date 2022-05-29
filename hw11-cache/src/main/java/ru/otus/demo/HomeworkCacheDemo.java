@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import ru.otus.core.repository.DataTemplateHibernate;
 import ru.otus.core.repository.HibernateUtils;
 import ru.otus.core.sessionmanager.TransactionManagerHibernate;
+import ru.otus.crm.service.DbServiceClientWithCacheImpl;
 import ru.otus.crm.service.dbmigrations.MigrationsExecutorFlyway;
 import ru.otus.crm.model.*;
-import ru.otus.crm.service.DbServiceClientImpl;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class HomeworkCacheDemo {
 ///
         var clientTemplate = new DataTemplateHibernate<>(Client.class);
 ///
-        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
+        var dbServiceClient = new DbServiceClientWithCacheImpl(transactionManager, clientTemplate);
         dbServiceClient.saveClient(new Client("dbServiceFirst"));
 
         var clientSecond = dbServiceClient.saveClient(new Client("dbServiceSecond"));
