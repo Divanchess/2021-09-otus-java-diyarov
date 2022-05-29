@@ -37,18 +37,6 @@ public class Client implements Cloneable {
         this.name = name;
     }
 
-    public Client(String name, Address address) {
-        this.id = null;
-        this.name = name;
-        this.address = address;
-    }
-
-    public Client(Long id, String name, Address address) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-    }
-
     public Client(Long id, String name, Address address, List<Phone> phones) {
         this.id = id;
         this.name = name;
