@@ -10,12 +10,12 @@ import org.junit.jupiter.api.BeforeEach;
 import ru.otus.core.repository.DataTemplateHibernate;
 import ru.otus.core.repository.HibernateUtils;
 import ru.otus.core.sessionmanager.TransactionManagerHibernate;
+import ru.otus.crm.service.DbServiceClientWithCacheImpl;
 import ru.otus.crm.service.dbmigrations.MigrationsExecutorFlyway;
 import ru.otus.crm.model.*;
 import ru.otus.crm.service.DBServiceClient;
-import ru.otus.crm.service.DbServiceClientImpl;
 
-import static ru.otus.demo.DbServiceDemo.HIBERNATE_CFG_FILE;
+import static ru.otus.demo.HomeworkCacheDemo.HIBERNATE_CFG_FILE;
 
 
 public abstract class AbstractHibernateTest {
@@ -55,7 +55,7 @@ public abstract class AbstractHibernateTest {
 
         transactionManager = new TransactionManagerHibernate(sessionFactory);
         clientTemplate = new DataTemplateHibernate<>(Client.class);
-        dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
+        dbServiceClient = new DbServiceClientWithCacheImpl(transactionManager, clientTemplate);
     }
 
     protected EntityStatistics getUsageStatistics() {

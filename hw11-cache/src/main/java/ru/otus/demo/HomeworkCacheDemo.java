@@ -14,7 +14,7 @@ import java.util.List;
 
 public class HomeworkCacheDemo {
 
-    private static final Logger log = LoggerFactory.getLogger(DbServiceDemo.class);
+    private static final Logger log = LoggerFactory.getLogger(HomeworkCacheDemo.class);
 
     public static final String HIBERNATE_CFG_FILE = "hibernate.cfg.xml";
 
