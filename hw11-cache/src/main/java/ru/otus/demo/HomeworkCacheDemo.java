@@ -4,6 +4,8 @@ import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.core.cachehw.HwCache;
+import ru.otus.core.cachehw.HwListener;
+import ru.otus.core.cachehw.HwLoggerListener;
 import ru.otus.core.cachehw.MyCache;
 import ru.otus.core.repository.DataTemplateHibernate;
 import ru.otus.core.repository.HibernateUtils;
@@ -34,7 +36,10 @@ public class HomeworkCacheDemo {
 ///
         var clientTemplate = new DataTemplateHibernate<>(Client.class);
 
+/// Cache with listener
         HwCache<String, Client> cache = new MyCache<>();
+        HwListener loggerListener = new HwLoggerListener<>(log);
+        cache.addListener(loggerListener);
 ///
         var dbServiceClient = new DbServiceClientWithCacheImpl(transactionManager, clientTemplate, cache);
         dbServiceClient.saveClient(new Client("dbServiceFirst"));
@@ -53,5 +58,6 @@ public class HomeworkCacheDemo {
 
         log.info("All clients");
         dbServiceClient.findAll().forEach(client -> log.info("client:{}", client));
+        cache.removeListener(loggerListener);
     }
 }
