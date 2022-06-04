@@ -3,6 +3,8 @@ package ru.otus.demo;
 import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.core.cachehw.HwCache;
+import ru.otus.core.cachehw.MyCache;
 import ru.otus.core.repository.DataTemplateHibernate;
 import ru.otus.core.repository.HibernateUtils;
 import ru.otus.core.sessionmanager.TransactionManagerHibernate;
@@ -31,8 +33,10 @@ public class HomeworkCacheDemo {
         var transactionManager = new TransactionManagerHibernate(sessionFactory);
 ///
         var clientTemplate = new DataTemplateHibernate<>(Client.class);
+
+        HwCache<String, Client> cache = new MyCache<>();
 ///
-        var dbServiceClient = new DbServiceClientWithCacheImpl(transactionManager, clientTemplate);
+        var dbServiceClient = new DbServiceClientWithCacheImpl(transactionManager, clientTemplate, cache);
         dbServiceClient.saveClient(new Client("dbServiceFirst"));
 
         var clientSecond = dbServiceClient.saveClient(new Client("dbServiceSecond"));
