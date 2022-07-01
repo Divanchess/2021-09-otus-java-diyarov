@@ -16,7 +16,7 @@ public class DbServiceClientWithCacheImpl implements DBServiceClient {
 
     private final DataTemplate<Client> clientDataTemplate;
     private final TransactionManager transactionManager;
-    private HwCache<String, Client> cache;
+    private final HwCache<String, Client> cache;
 
     public DbServiceClientWithCacheImpl(TransactionManager transactionManager, DataTemplate<Client> clientDataTemplate, HwCache<String, Client> cache) {
         this.transactionManager = transactionManager;

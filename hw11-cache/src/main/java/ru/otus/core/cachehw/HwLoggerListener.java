@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HwLoggerListener<K, V> implements HwListener<K, V>{
-    private Logger log;
+    private final Logger log;
 
     public HwLoggerListener(Logger log) {
         this.log = log;
@@ -15,5 +15,10 @@ public class HwLoggerListener<K, V> implements HwListener<K, V>{
         log.info("Cache action: " + action
                 + (key != null ? "; key: " + key : "")
                 + (value != null ? "; value: " + value : ""));
+    }
+
+    @Override
+    public String getListenerName() {
+        return "HwLoggerListener";
     }
 }

@@ -7,24 +7,24 @@ import java.util.WeakHashMap;
 
 public class MyCache<K, V> implements HwCache<K, V> {
 //Надо реализовать эти методы
-    private Map<K, V> cache = new WeakHashMap<>();
-    private List<HwListener<K, V>> listeners = new ArrayList();
+    private final Map<K, V> cache = new WeakHashMap<>();
+    private final List<HwListener<K, V>> listeners = new ArrayList();
 
     @Override
     public void put(K key, V value) {
         cache.put(key, value);
-        listeners.forEach(kvHwListener -> kvHwListener.notify(key, value, "put"));
+        callListeners(key, value, "put");
     }
 
     @Override
     public void remove(K key) {
         cache.remove(key);
-        listeners.forEach(kvHwListener -> kvHwListener.notify(key, null, "remove"));
+        callListeners(key, null, "remove");
     }
 
     @Override
     public V get(K key) {
-        listeners.forEach(kvHwListener -> kvHwListener.notify(key, null, "get"));
+        callListeners(key, null, "get");
         return cache.get(key);
     }
 
@@ -36,5 +36,15 @@ public class MyCache<K, V> implements HwCache<K, V> {
     @Override
     public void removeListener(HwListener<K, V> listener) {
         this.listeners.remove(listener);
+    }
+
+    private void callListeners(K key, V value, String action) {
+        listeners.forEach(kvHwListener -> {
+            try {
+                kvHwListener.notify(key, value, "put");
+            } catch (Exception e) {
+                System.err.println(String.format("Exception during invoke listener {}", kvHwListener.getListenerName()));
+            }
+        });
     }
 }
