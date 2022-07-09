@@ -2,14 +2,16 @@ package ru.otus;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ru.otus.dao.ClientDao;
+import ru.otus.dao.DbClientsDao;
 import ru.otus.dao.InMemoryUserDao;
 import ru.otus.dao.UserDao;
-import ru.otus.server.UsersWebServer;
-import ru.otus.server.UsersWebServerWithFilterBasedSecurity;
-import ru.otus.services.TemplateProcessor;
-import ru.otus.services.TemplateProcessorImpl;
-import ru.otus.services.UserAuthService;
-import ru.otus.services.UserAuthServiceImpl;
+import ru.otus.server.webserver.ClientsWebServer;
+import ru.otus.server.webserver.ClientsWebServerWithFilterBasedSecurity;
+import ru.otus.server.services.TemplateProcessor;
+import ru.otus.server.services.TemplateProcessorImpl;
+import ru.otus.server.services.UserAuthService;
+import ru.otus.server.services.UserAuthServiceImpl;
 
 /*
     Полезные для демо ссылки
@@ -29,14 +31,15 @@ public class WebServerWithFilterBasedSecurityDemo {
 
     public static void main(String[] args) throws Exception {
         UserDao userDao = new InMemoryUserDao();
+        ClientDao clientDao = new DbClientsDao();
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
         UserAuthService authService = new UserAuthServiceImpl(userDao);
 
-        UsersWebServer usersWebServer = new UsersWebServerWithFilterBasedSecurity(WEB_SERVER_PORT,
-                authService, userDao, gson, templateProcessor);
+        ClientsWebServer clientsWebServer = new ClientsWebServerWithFilterBasedSecurity(WEB_SERVER_PORT,
+                authService, userDao, clientDao, gson, templateProcessor);
 
-        usersWebServer.start();
-        usersWebServer.join();
+        clientsWebServer.start();
+        clientsWebServer.join();
     }
 }

@@ -2,12 +2,14 @@ package ru.otus;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ru.otus.dao.ClientDao;
+import ru.otus.dao.DbClientsDao;
 import ru.otus.dao.InMemoryUserDao;
 import ru.otus.dao.UserDao;
-import ru.otus.server.UsersWebServer;
-import ru.otus.server.UsersWebServerSimple;
-import ru.otus.services.TemplateProcessor;
-import ru.otus.services.TemplateProcessorImpl;
+import ru.otus.server.webserver.ClientsWebServer;
+import ru.otus.server.webserver.ClientsWebServerSimple;
+import ru.otus.server.services.TemplateProcessor;
+import ru.otus.server.services.TemplateProcessorImpl;
 
 /*
     Полезные для демо ссылки
@@ -27,13 +29,14 @@ public class WebServerSimpleDemo {
 
     public static void main(String[] args) throws Exception {
         UserDao userDao = new InMemoryUserDao();
+        ClientDao clientDao = new DbClientsDao();
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
 
-        UsersWebServer usersWebServer = new UsersWebServerSimple(WEB_SERVER_PORT, userDao,
-                gson, templateProcessor);
+        ClientsWebServer clientsWebServer = new ClientsWebServerSimple(WEB_SERVER_PORT, userDao,
+                clientDao, gson, templateProcessor);
 
-        usersWebServer.start();
-        usersWebServer.join();
+        clientsWebServer.start();
+        clientsWebServer.join();
     }
 }

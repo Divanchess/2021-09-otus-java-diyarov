@@ -1,6 +1,6 @@
 package ru.otus.dao;
 
-import ru.otus.model.User;
+import ru.otus.database.crm.model.User;
 
 import java.util.Optional;
 
