@@ -1,14 +1,14 @@
 package ru.otus.server.webserver;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import ru.otus.dao.ClientDao;
-import ru.otus.dao.UserDao;
+import ru.otus.database.crm.service.DBServiceClient;
+import ru.otus.database.crm.service.DBServiceUser;
 import ru.otus.server.helpers.FileSystemHelper;
 import ru.otus.server.services.TemplateProcessor;
 import ru.otus.server.servlet.ClientsApiServlet;
@@ -19,16 +19,16 @@ public class ClientsWebServerSimple implements ClientsWebServer {
     private static final String START_PAGE_NAME = "index.html";
     private static final String COMMON_RESOURCES_DIR = "static";
 
-    private final ClientDao clientDao;
-    private final UserDao userDao;
-    private final Gson gson;
+    private final DBServiceClient dbServiceClient;
+    private final DBServiceUser dbServiceUser;
+    private final ObjectMapper objectMapper;
     protected final TemplateProcessor templateProcessor;
     private final Server server;
 
-    public ClientsWebServerSimple(int port, UserDao userDao, ClientDao clientDao, Gson gson, TemplateProcessor templateProcessor) {
-        this.clientDao = clientDao;
-        this.userDao = userDao;
-        this.gson = gson;
+    public ClientsWebServerSimple(int port, DBServiceUser dbServiceUser, DBServiceClient dbServiceClient, ObjectMapper objectMapper, TemplateProcessor templateProcessor) {
+        this.dbServiceClient = dbServiceClient;
+        this.dbServiceUser = dbServiceUser;
+        this.objectMapper = objectMapper;
         this.templateProcessor = templateProcessor;
         server = new Server(port);
     }
@@ -79,8 +79,8 @@ public class ClientsWebServerSimple implements ClientsWebServer {
 
     private ServletContextHandler createServletContextHandler() {
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        servletContextHandler.addServlet(new ServletHolder(new ClientsServlet(templateProcessor, clientDao)), "/clients");
-        servletContextHandler.addServlet(new ServletHolder(new ClientsApiServlet(clientDao, gson)), "/api/client/*");
+        servletContextHandler.addServlet(new ServletHolder(new ClientsServlet(templateProcessor, dbServiceClient)), "/clients");
+        servletContextHandler.addServlet(new ServletHolder(new ClientsApiServlet(dbServiceClient, objectMapper)), "/api/client/*");
         return servletContextHandler;
     }
 }

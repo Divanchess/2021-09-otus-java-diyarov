@@ -1,16 +1,19 @@
 package ru.otus.database.crm.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity(name = "Client")
 @Table(name = "clients")
 public class Client implements Cloneable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -22,7 +25,8 @@ public class Client implements Cloneable {
     private Address address;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy="client", fetch=FetchType.EAGER)
-    private transient List<Phone> phones = new ArrayList<>();
+    @JsonManagedReference
+    private List<Phone> phones = new ArrayList<>();
 
     public Client() {
     }
@@ -78,6 +82,14 @@ public class Client implements Cloneable {
 
     public List<Phone> getPhones() {
         return phones;
+    }
+
+    public List<String> listPhoneNumbers() {
+        return phones.stream().map(p -> p.getNumber() != null ? p.getNumber() : "").collect(Collectors.toList());
+    }
+
+    public String printPhoneNumbersString() {
+        return String.join("; ", listPhoneNumbers());
     }
 
     public void setPhones(List<Phone> phones) {

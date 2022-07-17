@@ -8,6 +8,7 @@ import ru.otus.database.crm.model.Client;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class DbServiceClientImpl implements DBServiceClient {
     private static final Logger log = LoggerFactory.getLogger(DbServiceClientImpl.class);
@@ -36,7 +37,7 @@ public class DbServiceClientImpl implements DBServiceClient {
     }
 
     @Override
-    public Optional<Client> getClient(long id) {
+    public Optional<Client> findById(long id) {
         return transactionManager.doInReadOnlyTransaction(session -> {
             var clientOptional = clientDataTemplate.findById(session, id);
             log.info("client: {}", clientOptional);
@@ -51,5 +52,20 @@ public class DbServiceClientImpl implements DBServiceClient {
             log.info("clientList:{}", clientList);
             return clientList;
        });
+    }
+
+    @Override
+    public Optional<Client> findRandomClient() {
+        return transactionManager.doInReadOnlyTransaction(session -> {
+            Random r = new Random();
+            var clientList = clientDataTemplate.findAll(session);
+            log.info("clientList:{}", clientList);
+            return clientList.stream().skip(r.nextInt(clientList.size() - 1)).findFirst();
+        });
+//        return transactionManager.doInReadOnlyTransaction(session -> {
+//            var clientOptional = clientDataTemplate.findById(session, 3);
+//            log.info("client: {}", clientOptional);
+//            return clientOptional;
+//        });
     }
 }

@@ -1,11 +1,17 @@
 package ru.otus;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import ru.otus.dao.ClientDao;
-import ru.otus.dao.DbClientsDao;
-import ru.otus.dao.InMemoryUserDao;
-import ru.otus.dao.UserDao;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.cfg.Configuration;
+import ru.otus.database.core.repository.DataTemplateHibernate;
+import ru.otus.database.core.repository.HibernateUtils;
+import ru.otus.database.core.sessionmanager.TransactionManagerHibernate;
+import ru.otus.database.crm.dbmigrations.MigrationsExecutorFlyway;
+import ru.otus.database.crm.model.Address;
+import ru.otus.database.crm.model.Client;
+import ru.otus.database.crm.model.Phone;
+import ru.otus.database.crm.model.User;
+import ru.otus.database.crm.service.DbServiceClientImpl;
+import ru.otus.database.crm.service.DbServiceUserImpl;
 import ru.otus.server.webserver.ClientsWebServer;
 import ru.otus.server.webserver.ClientsWebServerSimple;
 import ru.otus.server.services.TemplateProcessor;
@@ -18,23 +24,41 @@ import ru.otus.server.services.TemplateProcessorImpl;
     http://localhost:8080
 
     // Страница пользователей
-    http://localhost:8080/users
+    http://localhost:8080/clients
 
     // REST сервис
-    http://localhost:8080/api/user/3
+    http://localhost:8080/api/client/3
 */
 public class WebServerSimpleDemo {
     private static final int WEB_SERVER_PORT = 8080;
     private static final String TEMPLATES_DIR = "/templates/";
+    public static final String HIBERNATE_CFG_FILE = "config/hibernate.cfg.xml";
+
 
     public static void main(String[] args) throws Exception {
-        UserDao userDao = new InMemoryUserDao();
-        ClientDao clientDao = new DbClientsDao();
-        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+        ObjectMapper objectMapper = new ObjectMapper();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
 
-        ClientsWebServer clientsWebServer = new ClientsWebServerSimple(WEB_SERVER_PORT, userDao,
-                clientDao, gson, templateProcessor);
+        var configuration = new Configuration().configure(HIBERNATE_CFG_FILE);
+
+        var dbUrl = configuration.getProperty("hibernate.connection.url");
+        var dbUserName = configuration.getProperty("hibernate.connection.username");
+        var dbPassword = configuration.getProperty("hibernate.connection.password");
+
+        new MigrationsExecutorFlyway(dbUrl, dbUserName, dbPassword).executeMigrations();
+
+        var sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class, Address.class, Phone.class, User.class);
+
+        var transactionManager = new TransactionManagerHibernate(sessionFactory);
+
+        var clientTemplate = new DataTemplateHibernate<>(Client.class);
+        var userTemplate = new DataTemplateHibernate<>(User.class);
+
+        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
+        var dbServiceUser = new DbServiceUserImpl(transactionManager, userTemplate);
+
+        ClientsWebServer clientsWebServer = new ClientsWebServerSimple(WEB_SERVER_PORT, dbServiceUser,
+                dbServiceClient, objectMapper, templateProcessor);
 
         clientsWebServer.start();
         clientsWebServer.join();

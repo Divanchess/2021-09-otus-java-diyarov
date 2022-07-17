@@ -1,12 +1,12 @@
 package ru.otus.server.webserver;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import ru.otus.dao.ClientDao;
-import ru.otus.dao.UserDao;
+import ru.otus.database.crm.service.DBServiceClient;
+import ru.otus.database.crm.service.DBServiceUser;
 import ru.otus.server.services.TemplateProcessor;
 import ru.otus.server.services.UserAuthService;
 import ru.otus.server.servlet.AuthorizationFilter;
@@ -19,11 +19,11 @@ public class ClientsWebServerWithFilterBasedSecurity extends ClientsWebServerSim
 
     public ClientsWebServerWithFilterBasedSecurity(int port,
                                                    UserAuthService authService,
-                                                   UserDao userDao,
-                                                   ClientDao clientDao,
-                                                   Gson gson,
+                                                   DBServiceUser dbServiceUser,
+                                                   DBServiceClient dbServiceClient,
+                                                   ObjectMapper objectMapper,
                                                    TemplateProcessor templateProcessor) {
-        super(port, userDao, clientDao, gson, templateProcessor);
+        super(port, dbServiceUser, dbServiceClient, objectMapper, templateProcessor);
         this.authService = authService;
     }
 

@@ -1,14 +1,19 @@
 package ru.otus;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.eclipse.jetty.security.HashLoginService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.security.LoginService;
-import ru.otus.dao.ClientDao;
-import ru.otus.dao.DbClientsDao;
-import ru.otus.dao.InMemoryUserDao;
-import ru.otus.dao.UserDao;
-import ru.otus.server.helpers.FileSystemHelper;
+import org.hibernate.cfg.Configuration;
+import ru.otus.database.core.repository.DataTemplateHibernate;
+import ru.otus.database.core.repository.HibernateUtils;
+import ru.otus.database.core.sessionmanager.TransactionManagerHibernate;
+import ru.otus.database.crm.dbmigrations.MigrationsExecutorFlyway;
+import ru.otus.database.crm.model.Address;
+import ru.otus.database.crm.model.Client;
+import ru.otus.database.crm.model.Phone;
+import ru.otus.database.crm.model.User;
+import ru.otus.database.crm.service.DbServiceClientImpl;
+import ru.otus.database.crm.service.DbServiceUserImpl;
+import ru.otus.server.services.LoginServiceImpl;
 import ru.otus.server.webserver.ClientsWebServer;
 import ru.otus.server.webserver.ClientsWebServerWithBasicSecurity;
 import ru.otus.server.services.TemplateProcessor;
@@ -29,21 +34,35 @@ import ru.otus.server.services.TemplateProcessorImpl;
 public class WebServerWithBasicSecurityDemo {
     private static final int WEB_SERVER_PORT = 8080;
     private static final String TEMPLATES_DIR = "/templates/";
-    private static final String HASH_LOGIN_SERVICE_CONFIG_NAME = "realm.properties";
-    private static final String REALM_NAME = "AnyRealm";
+    public static final String HIBERNATE_CFG_FILE = "config/hibernate.cfg.xml";
+
 
     public static void main(String[] args) throws Exception {
-        UserDao userDao = new InMemoryUserDao();
-        ClientDao clientDao = new DbClientsDao();
-        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+        var configuration = new Configuration().configure(HIBERNATE_CFG_FILE);
+
+        var dbUrl = configuration.getProperty("hibernate.connection.url");
+        var dbUserName = configuration.getProperty("hibernate.connection.username");
+        var dbPassword = configuration.getProperty("hibernate.connection.password");
+
+        new MigrationsExecutorFlyway(dbUrl, dbUserName, dbPassword).executeMigrations();
+
+        var sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class, Address.class, Phone.class, User.class);
+
+        var transactionManager = new TransactionManagerHibernate(sessionFactory);
+
+        var clientTemplate = new DataTemplateHibernate<>(Client.class);
+        var userTemplate = new DataTemplateHibernate<>(User.class);
+
+        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
+        var dbServiceUser = new DbServiceUserImpl(transactionManager, userTemplate);
+
+        ObjectMapper objectMapper = new ObjectMapper();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
 
-        String hashLoginServiceConfigPath = FileSystemHelper.localFileNameOrResourceNameToFullPath(HASH_LOGIN_SERVICE_CONFIG_NAME);
-        LoginService loginService = new HashLoginService(REALM_NAME, hashLoginServiceConfigPath);
-        //LoginService loginService = new InMemoryLoginServiceImpl(userDao);
+        LoginService loginService = new LoginServiceImpl(dbServiceUser);
 
         ClientsWebServer clientsWebServer = new ClientsWebServerWithBasicSecurity(WEB_SERVER_PORT,
-                loginService, userDao, clientDao, gson, templateProcessor);
+                loginService, dbServiceUser, dbServiceClient, objectMapper, templateProcessor);
 
         clientsWebServer.start();
         clientsWebServer.join();

@@ -1,17 +1,15 @@
 package ru.otus.server.webserver;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.junit.Ignore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.otus.dao.ClientDao;
-import ru.otus.dao.UserDao;
 import ru.otus.database.crm.model.Address;
 import ru.otus.database.crm.model.Client;
 import ru.otus.database.crm.model.Phone;
+import ru.otus.database.crm.service.DBServiceClient;
+import ru.otus.database.crm.service.DBServiceUser;
 import ru.otus.server.services.TemplateProcessor;
 import ru.otus.server.services.UserAuthService;
 
@@ -38,12 +36,12 @@ class ClientsWebServerImplTest {
     private static final String API_CLIENT_URL = "api/client";
 
     private static final String DEFAULT_USER_LOGIN = "user1";
-    private static final String DEFAULT_USER_PASSWORD = "11111";
+    private static final String DEFAULT_USER_PASSWORD = "pass1";
     private static final long DEFAULT_CLIENT_ID = 1L;
     private static final Client DEFAULT_CLIENT = new Client(DEFAULT_CLIENT_ID, "Vasya", new Address(1L, "Baker Street"), List.of(new Phone(1L, "123123")));
     private static final String INCORRECT_USER_LOGIN = "BadUser";
 
-    private static Gson gson;
+    private static ObjectMapper objectMapper;
     private static ClientsWebServer webServer;
     private static HttpClient http;
 
@@ -52,16 +50,16 @@ class ClientsWebServerImplTest {
         http = HttpClient.newHttpClient();
 
         TemplateProcessor templateProcessor = mock(TemplateProcessor.class);
-        UserDao userDao = mock(UserDao.class);
-        ClientDao clientDao = mock(ClientDao.class);
+        DBServiceClient dbServiceClient = mock(DBServiceClient.class);
+        DBServiceUser dbServiceUser = mock(DBServiceUser.class);
         UserAuthService userAuthService = mock(UserAuthService.class);
 
         given(userAuthService.authenticate(DEFAULT_USER_LOGIN, DEFAULT_USER_PASSWORD)).willReturn(true);
         given(userAuthService.authenticate(INCORRECT_USER_LOGIN, DEFAULT_USER_PASSWORD)).willReturn(false);
-        given(clientDao.findById(DEFAULT_CLIENT_ID)).willReturn(Optional.of(DEFAULT_CLIENT));
+        given(dbServiceClient.findById(DEFAULT_CLIENT_ID)).willReturn(Optional.of(DEFAULT_CLIENT));
 
-        gson = new GsonBuilder().serializeNulls().create();
-        webServer = new ClientsWebServerWithFilterBasedSecurity(WEB_SERVER_PORT, userAuthService, userDao, clientDao, gson, templateProcessor);
+        objectMapper = new ObjectMapper();
+        webServer = new ClientsWebServerWithFilterBasedSecurity(WEB_SERVER_PORT, userAuthService, dbServiceUser, dbServiceClient, objectMapper, templateProcessor);
         webServer.start();
     }
 
@@ -107,6 +105,6 @@ class ClientsWebServerImplTest {
         HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertThat(response.statusCode()).isEqualTo(HttpURLConnection.HTTP_OK);
-        assertThat(response.body()).isEqualTo(gson.toJson(DEFAULT_CLIENT));
+        assertThat(response.body()).isEqualTo(objectMapper.writeValueAsString(DEFAULT_CLIENT));
     }
 }

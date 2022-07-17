@@ -1,5 +1,7 @@
 package ru.otus.database.crm.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity(name = "Phone")
@@ -15,13 +17,23 @@ public class Phone {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id")
+    @JsonBackReference
     private Client client;
 
     public Phone() {}
 
+    public Phone(String number) {
+        this.number = number;
+    }
+
     public Phone(Long id, String number) {
         this.id = id;
         this.number = number;
+    }
+
+    public Phone(String number, Client client) {
+        this.number = number;
+        this.client = client;
     }
 
     public Long getId() {
@@ -40,8 +52,8 @@ public class Phone {
         this.number = number;
     }
 
-    public Client getClient() {
-        return client;
+    public Long getClient() {
+        return client.getId();
     }
 
     public void setClient(Client client) {

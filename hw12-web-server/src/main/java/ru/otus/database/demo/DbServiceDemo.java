@@ -26,7 +26,7 @@ public class DbServiceDemo {
         var dbUrl = configuration.getProperty("hibernate.connection.url");
         var dbUserName = configuration.getProperty("hibernate.connection.username");
         var dbPassword = configuration.getProperty("hibernate.connection.password");
-//      Закомментировал накат схемы миграцией.
+
         new MigrationsExecutorFlyway(dbUrl, dbUserName, dbPassword).executeMigrations();
 
         var sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class, Address.class, Phone.class);
@@ -39,14 +39,14 @@ public class DbServiceDemo {
         dbServiceClient.saveClient(new Client("dbServiceFirst"));
 
         var clientSecond = dbServiceClient.saveClient(new Client("dbServiceSecond"));
-        var clientSecondSelected = dbServiceClient.getClient(clientSecond.getId())
+        var clientSecondSelected = dbServiceClient.findById(clientSecond.getId())
                 .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientSecond.getId()));
         log.info("clientSecondSelected:{}", clientSecondSelected);
 ///
         dbServiceClient.saveClient(new Client(clientSecondSelected.getId(), "dbServiceSecondUpdated"));
         dbServiceClient.saveClient(new Client(null, "Vasya", new Address(null, "AnyStreet"),
                 List.of(new Phone(null, "13-555-22"), new Phone(null, "14-666-333"))));
-        var clientUpdated = dbServiceClient.getClient(clientSecondSelected.getId())
+        var clientUpdated = dbServiceClient.findById(clientSecondSelected.getId())
                 .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientSecondSelected.getId()));
         log.info("clientUpdated:{}", clientUpdated);
 

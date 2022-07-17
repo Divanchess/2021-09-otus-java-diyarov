@@ -21,7 +21,7 @@ class DbServiceClientTest extends AbstractHibernateTest {
         System.out.println(savedClient);
 
         //then
-        var loadedSavedClient = dbServiceClient.getClient(savedClient.getId());
+        var loadedSavedClient = dbServiceClient.findById(savedClient.getId());
         assertThat(loadedSavedClient).isPresent();
         assertThat(loadedSavedClient.get()).usingRecursiveComparison().isEqualTo(savedClient);
 
@@ -31,7 +31,7 @@ class DbServiceClientTest extends AbstractHibernateTest {
         dbServiceClient.saveClient(savedClientUpdated);
 
         //then
-        var loadedClient = dbServiceClient.getClient(savedClientUpdated.getId());
+        var loadedClient = dbServiceClient.findById(savedClientUpdated.getId());
         assertThat(loadedClient).isPresent();
         assertThat(loadedClient.get()).usingRecursiveComparison().isEqualTo(savedClientUpdated);
         System.out.println(loadedClient);
