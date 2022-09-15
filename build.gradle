@@ -31,6 +31,7 @@ allprojects {
             dependency("org.springframework.boot:spring-boot-starter-freemarker:${Versions.springBootVersion}")
             dependency("com.fasterxml.jackson.core:jackson-core:${Versions.jackson}")
             dependency("com.google.code.findbugs:jsr305:${Versions.jsr305}")
+            dependency("org.projectlombok:lombok:${Versions.lombok}")
         }
     }
 }

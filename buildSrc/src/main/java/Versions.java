@@ -11,4 +11,5 @@ public interface Versions {
     String jackson = "2.13.0";
     String springBootVersion = "2.6.2";
     String jsr305 = "3.0.2";
+    String lombok = "1.18.22";
 }
