@@ -9,4 +9,6 @@ public interface Versions {
     String gson = "2.9.0";
     String freemarker = "2.3.31";
     String jackson = "2.13.0";
+    String springBootVersion = "2.6.2";
+    String jsr305 = "3.0.2";
 }

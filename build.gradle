@@ -26,6 +26,11 @@ allprojects {
             dependency("com.google.protobuf:protobuf-java-util:${Versions.protobuf}")
             dependency("org.testcontainers:junit-jupiter:${Versions.testcontainers}")
             dependency("org.testcontainers:postgresql:${Versions.testcontainers}")
+            dependency("org.springframework.boot:spring-boot-starter-data-jdbc:${Versions.springBootVersion}")
+            dependency("org.springframework.boot:spring-boot-starter-web:${Versions.springBootVersion}")
+            dependency("org.springframework.boot:spring-boot-starter-freemarker:${Versions.springBootVersion}")
+            dependency("com.fasterxml.jackson.core:jackson-core:${Versions.jackson}")
+            dependency("com.google.code.findbugs:jsr305:${Versions.jsr305}")
         }
     }
 }
