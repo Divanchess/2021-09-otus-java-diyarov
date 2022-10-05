@@ -1,0 +1,6 @@
+server:
+  port: 8080
+  threadsCount: 4
+
+dbService:
+  url: "http://localhost:8081/db/v1/"

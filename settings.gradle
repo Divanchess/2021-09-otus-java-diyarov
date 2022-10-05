@@ -16,3 +16,7 @@ include 'hw13-di'
 include 'hw14-spring'
 include 'hw15-executors'
 include 'hw16-queues'
+include 'hw18-webflux'
+include 'hw18-webflux:dbservice'
+include 'hw18-webflux:webservice'
+
